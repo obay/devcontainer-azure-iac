@@ -1,0 +1,36 @@
+{
+  "name": "Azure IaC Development",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "azure-iac-dev",
+  "workspaceFolder": "/workspace",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "hashicorp.terraform",
+        "ms-azuretools.vscode-azureterraform",
+        "redhat.vscode-yaml",
+        "esbenp.prettier-vscode",
+        "eamodio.gitlens",
+        "redhat.ansible"
+      ],
+      "settings": {
+        "terraform.languageServer.enable": true,
+        "terraform.languageServer.path": "",
+        "files.associations": {
+          "*.tf": "terraform",
+          "*.tfvars": "terraform"
+        },
+        "editor.formatOnSave": true,
+        "[terraform]": {
+          "editor.defaultFormatter": "hashicorp.terraform",
+          "editor.formatOnSave": true
+        }
+      }
+    }
+  },
+
+  "postCreateCommand": "echo 'Container ready. Run: az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET -t $ARM_TENANT_ID'",
+
+  "remoteUser": "root"
+}

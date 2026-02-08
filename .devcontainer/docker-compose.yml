@@ -1,0 +1,51 @@
+services:
+  azure-iac-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: azure-iac-dev
+
+    # Keep container running
+    stdin_open: true
+    tty: true
+
+    # Mount the repository
+    volumes:
+      - ..:/workspace:cached
+      # Persist Azure CLI config between sessions
+      - azure-cli-config:/root/.azure
+      # Persist tofu plugin cache
+      - tofu-plugins:/root/.terraform.d/plugin-cache
+      # Persist Kubernetes config (AKS credentials)
+      - kube-config:/root/.kube
+      # SSH authorized keys for remote access
+      - ssh-keys:/root/.ssh
+
+    # Load credentials from .env file
+    env_file:
+      - .env
+
+    # Environment variables
+    environment:
+      # Azure Resource Manager (loaded from .env)
+      - ARM_TENANT_ID
+      - ARM_SUBSCRIPTION_ID
+      - ARM_CLIENT_ID
+      - ARM_CLIENT_SECRET
+      # Azure DevOps (loaded from .env)
+      - AZURE_DEVOPS_EXT_PAT
+      - AZURE_DEVOPS_ORG_URL
+      # OpenTofu settings
+      - TF_PLUGIN_CACHE_DIR=/root/.terraform.d/plugin-cache
+      # Disable interactive prompts
+      - TF_INPUT=0
+      # Kubernetes
+      - KUBECONFIG=/root/.kube/config
+
+    working_dir: /workspace
+
+volumes:
+  azure-cli-config:
+  tofu-plugins:
+  kube-config:
+  ssh-keys:

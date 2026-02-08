@@ -1,0 +1,13 @@
+# Remote access overlay — use with:
+#   docker compose -f docker-compose.yml -f docker-compose.remote.yml up -d
+#
+# Adds SSH port exposure and developer key mount for the dual-container
+# remote tunnel architecture. See REMOTE-ACCESS.md for details.
+
+services:
+  azure-iac-dev:
+    ports:
+      - "2222:22"
+    volumes:
+      # Developer's private key for remote container access (read-only)
+      - ${HOME}/.ssh/id_rsa:/root/.dev-key:ro
