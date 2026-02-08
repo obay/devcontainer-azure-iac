@@ -1,4 +1,4 @@
-# azure-iac-dev
+# devcontainer-azure-iac
 
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-24.04_LTS-E95420?logo=ubuntu&logoColor=white)](https://ubuntu.com/)
 [![Azure CLI](https://img.shields.io/badge/Azure_CLI-latest-0078D4?logo=microsoftazure&logoColor=white)](https://learn.microsoft.com/en-us/cli/azure/)
