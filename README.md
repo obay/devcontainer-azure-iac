@@ -6,6 +6,7 @@
 [![Terraform](https://img.shields.io/badge/Terraform-1.13.5-844FBA?logo=terraform&logoColor=white)](https://www.terraform.io/)
 [![Kubernetes](https://img.shields.io/badge/kubectl-1.32.6-326CE5?logo=kubernetes&logoColor=white)](https://kubernetes.io/)
 [![Helm](https://img.shields.io/badge/Helm-3.17.1-0F1689?logo=helm&logoColor=white)](https://helm.sh/)
+[![GitHub CLI](https://img.shields.io/badge/GitHub_CLI-latest-181717?logo=github&logoColor=white)](https://cli.github.com/)
 [![Docker](https://img.shields.io/badge/Dev_Container-ready-2496ED?logo=docker&logoColor=white)](https://containers.dev/)
 [![Bun](https://img.shields.io/badge/Bun-latest-F9F1E1?logo=bun&logoColor=black)](https://bun.sh/)
 
@@ -22,6 +23,7 @@ A pre-built development container for Azure Infrastructure as Code projects. Inc
 | kubectl | 1.32.6 | Kubernetes cluster management |
 | Helm | 3.17.1 | Kubernetes package manager |
 | azcopy | 10.31.1 | Azure Blob transfer tool |
+| GitHub CLI | latest | GitHub from the command line |
 | Bun | latest | JavaScript runtime and package manager |
 | Node.js | OS package | JavaScript runtime |
 
@@ -29,13 +31,21 @@ Azure CLI extensions: `azure-devops`, `ssh`, `bastion`
 
 ## Quick Start
 
-Create a `.env` file with your Azure credentials:
+Create a `.env` file with your credentials (see [.env.template](.devcontainer/.env.template) for the full list):
 
 ```ini
+# Required
 ARM_TENANT_ID=<your-tenant-id>
 ARM_SUBSCRIPTION_ID=<your-subscription-id>
 ARM_CLIENT_ID=<your-client-id>
 ARM_CLIENT_SECRET=<your-client-secret>
+
+# Optional — only if you use Azure DevOps
+AZURE_DEVOPS_EXT_PAT=<your-personal-access-token>
+AZURE_DEVOPS_ORG_URL=<https://dev.azure.com/your-org>
+
+# Optional — only if you use GitHub
+GH_TOKEN=<your-github-personal-access-token>
 ```
 
 Then pull the image and start a container:
@@ -89,6 +99,7 @@ docker exec -it azure-iac-dev bash
 | -------- | ----------- |
 | `AZURE_DEVOPS_EXT_PAT` | Azure DevOps personal access token |
 | `AZURE_DEVOPS_ORG_URL` | Azure DevOps organisation URL (e.g. `https://dev.azure.com/myorg`) |
+| `GH_TOKEN` | GitHub personal access token for `gh` CLI |
 
 ### Set automatically inside the container
 
@@ -144,6 +155,18 @@ kubectl get pods --all-namespaces
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 helm install my-release bitnami/nginx
+```
+
+### GitHub CLI
+
+```bash
+# GH_TOKEN is picked up automatically from the environment
+gh auth status
+
+# Common operations
+gh repo list
+gh pr list
+gh issue list
 ```
 
 ## Persistent Data

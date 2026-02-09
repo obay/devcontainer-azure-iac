@@ -76,6 +76,15 @@ RUN curl -fsSL "https://github.com/Azure/azure-storage-azcopy/releases/download/
     | tar -xz --strip-components=1 -C /usr/local/bin --wildcards '*/azcopy' \
     && chmod +x /usr/local/bin/azcopy
 
+# Install GitHub CLI
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+    | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+    > /etc/apt/sources.list.d/github-cli.list \
+    && apt-get update && apt-get install -y --no-install-recommends gh \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install Azure CLI extensions (baked into image for reproducibility)
 RUN az extension add --name azure-devops \
     && az extension add --name ssh \

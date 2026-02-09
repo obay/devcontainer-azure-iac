@@ -33,6 +33,8 @@ services:
       # Azure DevOps (loaded from .env)
       - AZURE_DEVOPS_EXT_PAT
       - AZURE_DEVOPS_ORG_URL
+      # GitHub (loaded from .env)
+      - GH_TOKEN
       # OpenTofu settings
       - TF_PLUGIN_CACHE_DIR=/root/.terraform.d/plugin-cache
       # Disable interactive prompts
