@@ -18,8 +18,6 @@ services:
       - tofu-plugins:/root/.terraform.d/plugin-cache
       # Persist Kubernetes config (AKS credentials)
       - kube-config:/root/.kube
-      # SSH authorized keys for remote access
-      - ssh-keys:/root/.ssh
 
     # Load credentials from .env file
     env_file:
@@ -48,4 +46,3 @@ volumes:
   azure-cli-config:
   tofu-plugins:
   kube-config:
-  ssh-keys:

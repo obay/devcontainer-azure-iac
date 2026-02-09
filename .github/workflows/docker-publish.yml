@@ -6,7 +6,6 @@ on:
     paths:
       - ".devcontainer/Dockerfile"
       - ".devcontainer/docker-compose.yml"
-      - ".devcontainer/docker-compose.remote.yml"
       - ".devcontainer/devcontainer.json"
       - ".github/workflows/docker-publish.yml"
 

@@ -29,23 +29,27 @@ Azure CLI extensions: `azure-devops`, `ssh`, `bastion`
 
 ## Quick Start
 
-Pull the image from Docker Hub and start a container:
+Create a `.env` file with your Azure credentials:
+
+```ini
+ARM_TENANT_ID=<your-tenant-id>
+ARM_SUBSCRIPTION_ID=<your-subscription-id>
+ARM_CLIENT_ID=<your-client-id>
+ARM_CLIENT_SECRET=<your-client-secret>
+```
+
+Then pull the image and start a container:
 
 **Mac / Linux:**
 
 ```bash
 docker run -dit \
   --name azure-iac-dev \
+  --env-file .env \
   -v "$(pwd)":/workspace \
   -v azure-cli-config:/root/.azure \
   -v tofu-plugins:/root/.terraform.d/plugin-cache \
   -v kube-config:/root/.kube \
-  -e ARM_TENANT_ID=<your-tenant-id> \
-  -e ARM_SUBSCRIPTION_ID=<your-subscription-id> \
-  -e ARM_CLIENT_ID=<your-client-id> \
-  -e ARM_CLIENT_SECRET=<your-client-secret> \
-  -e TF_PLUGIN_CACHE_DIR=/root/.terraform.d/plugin-cache \
-  -e KUBECONFIG=/root/.kube/config \
   xobay/azure-iac-dev:latest
 ```
 
@@ -54,20 +58,15 @@ docker run -dit \
 ```powershell
 docker run -dit `
   --name azure-iac-dev `
+  --env-file .env `
   -v "${PWD}:/workspace" `
   -v azure-cli-config:/root/.azure `
   -v tofu-plugins:/root/.terraform.d/plugin-cache `
   -v kube-config:/root/.kube `
-  -e ARM_TENANT_ID=<your-tenant-id> `
-  -e ARM_SUBSCRIPTION_ID=<your-subscription-id> `
-  -e ARM_CLIENT_ID=<your-client-id> `
-  -e ARM_CLIENT_SECRET=<your-client-secret> `
-  -e TF_PLUGIN_CACHE_DIR=/root/.terraform.d/plugin-cache `
-  -e KUBECONFIG=/root/.kube/config `
   xobay/azure-iac-dev:latest
 ```
 
-Then open a shell inside the container:
+Open a shell inside the container:
 
 ```bash
 docker exec -it azure-iac-dev bash
@@ -147,21 +146,6 @@ helm repo update
 helm install my-release bitnami/nginx
 ```
 
-### Remote commands
-
-When the dual-container SSH tunnel is active, use `remote` (or the short alias `r`) to run commands on a container in the private network:
-
-```bash
-remote kubectl get nodes
-remote az account show
-r helm list --all-namespaces
-
-# Interactive shell on the remote container
-remote
-```
-
-See [REMOTE-ACCESS.md](.devcontainer/REMOTE-ACCESS.md) for the full setup guide.
-
 ## Persistent Data
 
 Named Docker volumes persist across container rebuilds:
@@ -171,27 +155,6 @@ Named Docker volumes persist across container rebuilds:
 | `azure-cli-config` | `/root/.azure` | Azure CLI login state and configuration |
 | `tofu-plugins` | `/root/.terraform.d/plugin-cache` | Terraform/OpenTofu provider cache |
 | `kube-config` | `/root/.kube` | Kubernetes contexts and credentials |
-| `ssh-keys` | `/root/.ssh` | SSH keys and authorized_keys |
-
-## Remote Access (Optional)
-
-For scenarios where you develop locally but need access to a private network (e.g. on-prem AKS clusters), this project includes a dual-container SSH tunnel architecture. To enable it, use the compose overlay when starting the local container:
-
-**Mac / Linux:**
-
-```bash
-cd .devcontainer
-docker compose -f docker-compose.yml -f docker-compose.remote.yml up -d
-```
-
-**Windows (PowerShell):**
-
-```powershell
-cd .devcontainer
-docker compose -f docker-compose.yml -f docker-compose.remote.yml up -d
-```
-
-This exposes SSH on port 2222 and mounts your local SSH key for the `remote` command. See [REMOTE-ACCESS.md](.devcontainer/REMOTE-ACCESS.md) for the full setup guide, including the `setup-remote-access.ps1` script for the Windows remote host.
 
 ## Building from Source
 

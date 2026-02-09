@@ -18,12 +18,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     vim \
     bash-completion \
     openssh-client \
-    openssh-server \
     skopeo \
     rsync \
     dnsutils \
     gawk \
-    autossh \
     nodejs \
     npm \
     && rm -rf /var/lib/apt/lists/*
@@ -83,42 +81,14 @@ RUN az extension add --name azure-devops \
     && az extension add --name ssh \
     && az extension add --name bastion
 
-# Configure SSH server for remote access
-RUN mkdir -p /var/run/sshd \
-    && ssh-keygen -A \
-    && mkdir -p /root/.ssh \
-    && chmod 700 /root/.ssh \
-    && sed -i 's/^#*PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config \
-    && sed -i 's/^#*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config \
-    && sed -i 's/^#*PubkeyAuthentication.*/PubkeyAuthentication yes/' /etc/ssh/sshd_config \
-    && sed -i 's/^#*AuthorizedKeysFile.*/AuthorizedKeysFile .ssh\/authorized_keys/' /etc/ssh/sshd_config
-
 # Configure bash completions
 RUN echo 'source /etc/bash_completion' >> /root/.bashrc
 RUN tofu -install-autocomplete 2>/dev/null || true
 RUN echo 'source <(kubectl completion bash)' >> /root/.bashrc
 RUN echo 'source <(helm completion bash)' >> /root/.bashrc
 
-# Helper script to execute commands on the remote container via SSH tunnel
-RUN printf '#!/bin/bash\n\
-# Execute a command on the remote container via reverse SSH tunnel (port 2223)\n\
-# Usage: remote <command>        (run command on remote)\n\
-#        remote                  (interactive shell on remote)\n\
-if [ $# -eq 0 ]; then\n\
-  exec ssh -p 2223 -i /root/.dev-key -o StrictHostKeyChecking=no -o LogLevel=ERROR root@localhost\n\
-else\n\
-  exec ssh -p 2223 -i /root/.dev-key -o StrictHostKeyChecking=no -o LogLevel=ERROR root@localhost "$@"\n\
-fi\n' > /usr/local/bin/remote && chmod +x /usr/local/bin/remote
-RUN echo 'alias r=remote' >> /root/.bashrc
-
-# Expose SSH port
-EXPOSE 22
-
 # Set working directory
 WORKDIR /workspace
-
-# Start SSH daemon on container startup via bashrc (works with interactive TTY)
-RUN echo '/usr/sbin/sshd 2>/dev/null' >> /root/.bashrc
 
 # Default command
 CMD ["/bin/bash"]
