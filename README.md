@@ -9,7 +9,7 @@
 [![Docker](https://img.shields.io/badge/Dev_Container-ready-2496ED?logo=docker&logoColor=white)](https://containers.dev/)
 [![Bun](https://img.shields.io/badge/Bun-latest-F9F1E1?logo=bun&logoColor=black)](https://bun.sh/)
 
-A generic, reusable development container for Azure Infrastructure as Code projects. Pre-configured with the tools you need for Terraform/OpenTofu, Kubernetes, and Azure management.
+A pre-built development container for Azure Infrastructure as Code projects. Includes Azure CLI, OpenTofu, Terraform, kubectl, Helm, and other tools for managing Azure infrastructure.
 
 ## What's Included
 
@@ -27,58 +27,199 @@ A generic, reusable development container for Azure Infrastructure as Code proje
 
 Azure CLI extensions: `azure-devops`, `ssh`, `bastion`
 
-All tool versions are configurable via Docker build args (e.g. `--build-arg TERRAFORM_VERSION=1.14.0`).
-
 ## Quick Start
 
-1. Copy the `.devcontainer/` folder into your project (or clone this repo)
+Pull the image from Docker Hub and start a container:
 
-2. Create your credentials file:
+**Mac / Linux:**
 
-   ```bash
-   cp .devcontainer/.env.template .devcontainer/.env
-   # Edit .env with your Azure credentials
-   ```
+```bash
+docker run -dit \
+  --name azure-iac-dev \
+  -v "$(pwd)":/workspace \
+  -v azure-cli-config:/root/.azure \
+  -v tofu-plugins:/root/.terraform.d/plugin-cache \
+  -v kube-config:/root/.kube \
+  -e ARM_TENANT_ID=<your-tenant-id> \
+  -e ARM_SUBSCRIPTION_ID=<your-subscription-id> \
+  -e ARM_CLIENT_ID=<your-client-id> \
+  -e ARM_CLIENT_SECRET=<your-client-secret> \
+  -e TF_PLUGIN_CACHE_DIR=/root/.terraform.d/plugin-cache \
+  -e KUBECONFIG=/root/.kube/config \
+  xobay/azure-iac-dev:latest
+```
 
-3. Open the project in VS Code and select **Reopen in Container**, or start manually:
+**Windows (PowerShell):**
 
-   ```bash
-   cd .devcontainer && docker compose up -d
-   ```
+```powershell
+docker run -dit `
+  --name azure-iac-dev `
+  -v "${PWD}:/workspace" `
+  -v azure-cli-config:/root/.azure `
+  -v tofu-plugins:/root/.terraform.d/plugin-cache `
+  -v kube-config:/root/.kube `
+  -e ARM_TENANT_ID=<your-tenant-id> `
+  -e ARM_SUBSCRIPTION_ID=<your-subscription-id> `
+  -e ARM_CLIENT_ID=<your-client-id> `
+  -e ARM_CLIENT_SECRET=<your-client-secret> `
+  -e TF_PLUGIN_CACHE_DIR=/root/.terraform.d/plugin-cache `
+  -e KUBECONFIG=/root/.kube/config `
+  xobay/azure-iac-dev:latest
+```
 
-4. Log in to Azure:
+Then open a shell inside the container:
 
-   ```bash
-   az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET -t $ARM_TENANT_ID
-   ```
+```bash
+docker exec -it azure-iac-dev bash
+```
+
+## Environment Variables
+
+### Required
+
+| Variable | Description |
+| -------- | ----------- |
+| `ARM_TENANT_ID` | Azure AD tenant ID |
+| `ARM_SUBSCRIPTION_ID` | Target Azure subscription ID |
+| `ARM_CLIENT_ID` | Service principal application (client) ID |
+| `ARM_CLIENT_SECRET` | Service principal secret |
+
+### Optional
+
+| Variable | Description |
+| -------- | ----------- |
+| `AZURE_DEVOPS_EXT_PAT` | Azure DevOps personal access token |
+| `AZURE_DEVOPS_ORG_URL` | Azure DevOps organisation URL (e.g. `https://dev.azure.com/myorg`) |
+
+### Set automatically inside the container
+
+| Variable | Value | Purpose |
+| -------- | ----- | ------- |
+| `TF_PLUGIN_CACHE_DIR` | `/root/.terraform.d/plugin-cache` | Cache Terraform/OpenTofu providers across runs |
+| `TF_INPUT` | `0` | Disable interactive prompts in Terraform/OpenTofu |
+| `KUBECONFIG` | `/root/.kube/config` | Kubernetes configuration path |
+
+## Usage
+
+### Authenticate to Azure
+
+```bash
+az login --service-principal \
+  -u $ARM_CLIENT_ID \
+  -p $ARM_CLIENT_SECRET \
+  -t $ARM_TENANT_ID
+
+az account set --subscription $ARM_SUBSCRIPTION_ID
+
+# Verify
+az account show
+```
+
+### Terraform / OpenTofu
+
+```bash
+tofu init
+tofu plan
+tofu apply
+
+# Same commands work with terraform
+terraform init
+terraform plan
+terraform apply
+```
+
+### Kubernetes (AKS)
+
+```bash
+# Get credentials for an AKS cluster
+az aks get-credentials --resource-group <rg-name> --name <cluster-name>
+
+# Verify connectivity
+kubectl get nodes
+kubectl get pods --all-namespaces
+```
+
+### Helm
+
+```bash
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+helm install my-release bitnami/nginx
+```
+
+### Remote commands
+
+When the dual-container SSH tunnel is active, use `remote` (or the short alias `r`) to run commands on a container in the private network:
+
+```bash
+remote kubectl get nodes
+remote az account show
+r helm list --all-namespaces
+
+# Interactive shell on the remote container
+remote
+```
+
+See [REMOTE-ACCESS.md](.devcontainer/REMOTE-ACCESS.md) for the full setup guide.
 
 ## Persistent Data
 
 Named Docker volumes persist across container rebuilds:
 
-- `/root/.azure` — Azure CLI login state
-- `/root/.terraform.d/plugin-cache` — OpenTofu/Terraform provider cache
-- `/root/.kube` — Kubernetes contexts and credentials
-- `/root/.ssh` — SSH keys
+| Volume | Mount point | Purpose |
+| ------ | ----------- | ------- |
+| `azure-cli-config` | `/root/.azure` | Azure CLI login state and configuration |
+| `tofu-plugins` | `/root/.terraform.d/plugin-cache` | Terraform/OpenTofu provider cache |
+| `kube-config` | `/root/.kube` | Kubernetes contexts and credentials |
+| `ssh-keys` | `/root/.ssh` | SSH keys and authorized_keys |
 
 ## Remote Access (Optional)
 
-For scenarios where you develop locally but need access to a private network (e.g. on-prem AKS clusters), this project includes a dual-container SSH tunnel architecture.
+For scenarios where you develop locally but need access to a private network (e.g. on-prem AKS clusters), this project includes a dual-container SSH tunnel architecture. To enable it, use the compose overlay when starting the local container:
 
-To enable remote access, use the compose overlay:
+**Mac / Linux:**
 
 ```bash
 cd .devcontainer
 docker compose -f docker-compose.yml -f docker-compose.remote.yml up -d
 ```
 
-This exposes SSH on port 2222 and mounts your local SSH key for the `remote` command. See [REMOTE-ACCESS.md](.devcontainer/REMOTE-ACCESS.md) for the full setup guide.
+**Windows (PowerShell):**
 
-## Customisation
+```powershell
+cd .devcontainer
+docker compose -f docker-compose.yml -f docker-compose.remote.yml up -d
+```
 
-### Adding tools
+This exposes SSH on port 2222 and mounts your local SSH key for the `remote` command. See [REMOTE-ACCESS.md](.devcontainer/REMOTE-ACCESS.md) for the full setup guide, including the `setup-remote-access.ps1` script for the Windows remote host.
 
-Edit [.devcontainer/Dockerfile](.devcontainer/Dockerfile) and add `RUN` instructions.
+## Building from Source
+
+If you want to customise the image or use the VS Code Dev Container workflow:
+
+1. Clone this repo or copy the `.devcontainer/` folder into your project
+
+2. Create your credentials file:
+
+   **Mac / Linux:**
+
+   ```bash
+   cp .devcontainer/.env.template .devcontainer/.env
+   ```
+
+   **Windows (PowerShell):**
+
+   ```powershell
+   Copy-Item .devcontainer\.env.template .devcontainer\.env
+   ```
+
+   Edit `.env` with your Azure credentials.
+
+3. Open in VS Code and select **Reopen in Container**, or start manually:
+
+   ```bash
+   cd .devcontainer && docker compose up -d
+   ```
 
 ### Changing tool versions
 
