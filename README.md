@@ -9,23 +9,25 @@
 [![GitHub CLI](https://img.shields.io/badge/GitHub_CLI-latest-181717?logo=github&logoColor=white)](https://cli.github.com/)
 [![Docker](https://img.shields.io/badge/Dev_Container-ready-2496ED?logo=docker&logoColor=white)](https://containers.dev/)
 [![Bun](https://img.shields.io/badge/Bun-latest-F9F1E1?logo=bun&logoColor=black)](https://bun.sh/)
+[![PowerShell](https://img.shields.io/badge/PowerShell-latest-5391FE?logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
 
-A pre-built development container for Azure Infrastructure as Code projects. Includes Azure CLI, OpenTofu, Terraform, kubectl, Helm, and other tools for managing Azure infrastructure.
+A pre-built development container for Azure Infrastructure as Code projects. Includes Azure CLI, OpenTofu, Terraform, kubectl, Helm, PowerShell, and other tools for managing Azure infrastructure.
 
 ## What's Included
 
-| Tool | Version | Purpose |
-| ---- | ------- | ------- |
-| Azure CLI | latest | Azure resource management |
-| OpenTofu | 1.10.6 | Open-source Terraform alternative |
-| Terraform | 1.13.5 | Infrastructure as Code |
-| tfren | 1.0.4 | Terraform file organizer |
-| kubectl | 1.32.6 | Kubernetes cluster management |
-| Helm | 3.17.1 | Kubernetes package manager |
-| azcopy | 10.31.1 | Azure Blob transfer tool |
-| GitHub CLI | latest | GitHub from the command line |
-| Bun | latest | JavaScript runtime and package manager |
-| Node.js | OS package | JavaScript runtime |
+| Tool       | Version    | Purpose                                 |
+| ---------- | ---------- | --------------------------------------- |
+| Azure CLI  | latest     | Azure resource management               |
+| OpenTofu   | 1.10.6     | Open-source Terraform alternative       |
+| Terraform  | 1.13.5     | Infrastructure as Code                  |
+| tfren      | 1.0.4      | Terraform file organizer                |
+| kubectl    | 1.32.6     | Kubernetes cluster management           |
+| Helm       | 3.17.1     | Kubernetes package manager              |
+| azcopy     | 10.31.1    | Azure Blob transfer tool                |
+| GitHub CLI | latest     | GitHub from the command line            |
+| Bun        | latest     | JavaScript runtime and package manager  |
+| PowerShell | latest     | Cross-platform automation and scripting |
+| Node.js    | OS package | JavaScript runtime                      |
 
 Azure CLI extensions: `azure-devops`, `ssh`, `bastion`
 
@@ -86,28 +88,28 @@ docker exec -it azure-iac-dev bash
 
 ### Required
 
-| Variable | Description |
-| -------- | ----------- |
-| `ARM_TENANT_ID` | Azure AD tenant ID |
-| `ARM_SUBSCRIPTION_ID` | Target Azure subscription ID |
-| `ARM_CLIENT_ID` | Service principal application (client) ID |
-| `ARM_CLIENT_SECRET` | Service principal secret |
+| Variable              | Description                               |
+| --------------------- | ----------------------------------------- |
+| `ARM_TENANT_ID`       | Azure AD tenant ID                        |
+| `ARM_SUBSCRIPTION_ID` | Target Azure subscription ID              |
+| `ARM_CLIENT_ID`       | Service principal application (client) ID |
+| `ARM_CLIENT_SECRET`   | Service principal secret                  |
 
 ### Optional
 
-| Variable | Description |
-| -------- | ----------- |
-| `AZURE_DEVOPS_EXT_PAT` | Azure DevOps personal access token |
+| Variable               | Description                                                        |
+| ---------------------- | ------------------------------------------------------------------ |
+| `AZURE_DEVOPS_EXT_PAT` | Azure DevOps personal access token                                 |
 | `AZURE_DEVOPS_ORG_URL` | Azure DevOps organisation URL (e.g. `https://dev.azure.com/myorg`) |
-| `GH_TOKEN` | GitHub personal access token for `gh` CLI |
+| `GH_TOKEN`             | GitHub personal access token for `gh` CLI                          |
 
 ### Set automatically inside the container
 
-| Variable | Value | Purpose |
-| -------- | ----- | ------- |
-| `TF_PLUGIN_CACHE_DIR` | `/root/.terraform.d/plugin-cache` | Cache Terraform/OpenTofu providers across runs |
-| `TF_INPUT` | `0` | Disable interactive prompts in Terraform/OpenTofu |
-| `KUBECONFIG` | `/root/.kube/config` | Kubernetes configuration path |
+| Variable              | Value                             | Purpose                                           |
+| --------------------- | --------------------------------- | ------------------------------------------------- |
+| `TF_PLUGIN_CACHE_DIR` | `/root/.terraform.d/plugin-cache` | Cache Terraform/OpenTofu providers across runs    |
+| `TF_INPUT`            | `0`                               | Disable interactive prompts in Terraform/OpenTofu |
+| `KUBECONFIG`          | `/root/.kube/config`              | Kubernetes configuration path                     |
 
 ## Usage
 
@@ -173,11 +175,11 @@ gh issue list
 
 Named Docker volumes persist across container rebuilds:
 
-| Volume | Mount point | Purpose |
-| ------ | ----------- | ------- |
-| `azure-cli-config` | `/root/.azure` | Azure CLI login state and configuration |
-| `tofu-plugins` | `/root/.terraform.d/plugin-cache` | Terraform/OpenTofu provider cache |
-| `kube-config` | `/root/.kube` | Kubernetes contexts and credentials |
+| Volume             | Mount point                       | Purpose                                 |
+| ------------------ | --------------------------------- | --------------------------------------- |
+| `azure-cli-config` | `/root/.azure`                    | Azure CLI login state and configuration |
+| `tofu-plugins`     | `/root/.terraform.d/plugin-cache` | Terraform/OpenTofu provider cache       |
+| `kube-config`      | `/root/.kube`                     | Kubernetes contexts and credentials     |
 
 ## Building from Source
 
