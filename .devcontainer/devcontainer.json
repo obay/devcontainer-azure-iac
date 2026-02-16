@@ -12,7 +12,8 @@
         "redhat.vscode-yaml",
         "esbenp.prettier-vscode",
         "eamodio.gitlens",
-        "redhat.ansible"
+        "redhat.ansible",
+        "ms-vscode.powershell"
       ],
       "settings": {
         "terraform.languageServer.enable": true,

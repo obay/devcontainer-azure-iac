@@ -31,6 +31,8 @@ A pre-built development container for Azure Infrastructure as Code projects. Inc
 
 Azure CLI extensions: `azure-devops`, `ssh`, `bastion`
 
+PowerShell modules: `Az` (Azure management), `VSTeam` (Azure DevOps management)
+
 ## Quick Start
 
 Create a `.env` file with your credentials (see [.env.template](.devcontainer/.env.template) for the full list):
@@ -157,6 +159,31 @@ kubectl get pods --all-namespaces
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 helm install my-release bitnami/nginx
+```
+
+### PowerShell (Azure & Azure DevOps)
+
+```powershell
+# Start a PowerShell session
+pwsh
+
+# Authenticate to Azure
+Connect-AzAccount -ServicePrincipal `
+  -TenantId $env:ARM_TENANT_ID `
+  -ApplicationId $env:ARM_CLIENT_ID `
+  -CertificateThumbprint $env:ARM_CLIENT_SECRET
+# Or use a credential object
+$cred = New-Object PSCredential($env:ARM_CLIENT_ID, (ConvertTo-SecureString $env:ARM_CLIENT_SECRET -AsPlainText -Force))
+Connect-AzAccount -ServicePrincipal -TenantId $env:ARM_TENANT_ID -Credential $cred
+
+# Manage Azure resources
+Get-AzResourceGroup
+Get-AzVM
+
+# Connect to Azure DevOps (VSTeam)
+Set-VSTeamAccount -Account $env:AZURE_DEVOPS_ORG_URL -PersonalAccessToken $env:AZURE_DEVOPS_EXT_PAT
+Get-VSTeamProject
+Get-VSTeamBuildDefinition -ProjectName <project-name>
 ```
 
 ### GitHub CLI
