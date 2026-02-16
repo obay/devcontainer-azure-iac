@@ -69,6 +69,7 @@ docker run -dit \
   -v azure-cli-config:/root/.azure \
   -v tofu-plugins:/root/.terraform.d/plugin-cache \
   -v kube-config:/root/.kube \
+  -v ~/.claude:/root/.claude \
   xobay/azure-iac-dev:latest
 ```
 
@@ -82,6 +83,7 @@ docker run -dit `
   -v azure-cli-config:/root/.azure `
   -v tofu-plugins:/root/.terraform.d/plugin-cache `
   -v kube-config:/root/.kube `
+  -v "$env:USERPROFILE\.claude:/root/.claude" `
   xobay/azure-iac-dev:latest
 ```
 
@@ -195,11 +197,13 @@ Get-VSTeamBuildDefinition -ProjectName <project-name>
 ### Claude Code
 
 ```bash
-# ANTHROPIC_API_KEY is picked up automatically from the environment
+# Your host login session is shared via the ~/.claude mount — no extra auth needed
 claude
 
 # Non-interactive usage
 claude -p "explain this terraform module"
+
+# Or authenticate with an API key (via ANTHROPIC_API_KEY in .env)
 ```
 
 ### GitHub CLI
@@ -223,6 +227,7 @@ Named Docker volumes persist across container rebuilds:
 | `azure-cli-config` | `/root/.azure`                    | Azure CLI login state and configuration |
 | `tofu-plugins`     | `/root/.terraform.d/plugin-cache` | Terraform/OpenTofu provider cache       |
 | `kube-config`      | `/root/.kube`                     | Kubernetes contexts and credentials     |
+| `~/.claude` (bind) | `/root/.claude`                   | Claude Code login, settings, and memory |
 
 ## Building from Source
 

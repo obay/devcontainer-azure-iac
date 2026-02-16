@@ -18,6 +18,8 @@ services:
       - tofu-plugins:/root/.terraform.d/plugin-cache
       # Persist Kubernetes config (AKS credentials)
       - kube-config:/root/.kube
+      # Share Claude Code config from host (login session, settings, memory)
+      - ~/.claude:/root/.claude
 
     # Load credentials from .env file
     env_file:
