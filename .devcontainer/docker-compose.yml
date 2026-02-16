@@ -35,6 +35,8 @@ services:
       - AZURE_DEVOPS_ORG_URL
       # GitHub (loaded from .env)
       - GH_TOKEN
+      # Anthropic (loaded from .env)
+      - ANTHROPIC_API_KEY
       # OpenTofu settings
       - TF_PLUGIN_CACHE_DIR=/root/.terraform.d/plugin-cache
       # Disable interactive prompts

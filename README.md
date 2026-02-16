@@ -10,24 +10,26 @@
 [![Docker](https://img.shields.io/badge/Dev_Container-ready-2496ED?logo=docker&logoColor=white)](https://containers.dev/)
 [![Bun](https://img.shields.io/badge/Bun-latest-F9F1E1?logo=bun&logoColor=black)](https://bun.sh/)
 [![PowerShell](https://img.shields.io/badge/PowerShell-latest-5391FE?logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
+[![Claude Code](https://img.shields.io/badge/Claude_Code-latest-D97757?logo=anthropic&logoColor=white)](https://docs.anthropic.com/en/docs/claude-code)
 
-A pre-built development container for Azure Infrastructure as Code projects. Includes Azure CLI, OpenTofu, Terraform, kubectl, Helm, PowerShell, and other tools for managing Azure infrastructure.
+A pre-built development container for Azure Infrastructure as Code projects. Includes Azure CLI, OpenTofu, Terraform, kubectl, Helm, PowerShell, Claude Code, and other tools for managing Azure infrastructure.
 
 ## What's Included
 
-| Tool       | Version    | Purpose                                 |
-| ---------- | ---------- | --------------------------------------- |
-| Azure CLI  | latest     | Azure resource management               |
-| OpenTofu   | 1.10.6     | Open-source Terraform alternative       |
-| Terraform  | 1.13.5     | Infrastructure as Code                  |
-| tfren      | 1.0.4      | Terraform file organizer                |
-| kubectl    | 1.32.6     | Kubernetes cluster management           |
-| Helm       | 3.17.1     | Kubernetes package manager              |
-| azcopy     | 10.31.1    | Azure Blob transfer tool                |
-| GitHub CLI | latest     | GitHub from the command line            |
-| Bun        | latest     | JavaScript runtime and package manager  |
-| PowerShell | latest     | Cross-platform automation and scripting |
-| Node.js    | OS package | JavaScript runtime                      |
+| Tool        | Version    | Purpose                                 |
+| ----------- | ---------- | --------------------------------------- |
+| Azure CLI   | latest     | Azure resource management               |
+| OpenTofu    | 1.10.6     | Open-source Terraform alternative       |
+| Terraform   | 1.13.5     | Infrastructure as Code                  |
+| tfren       | 1.0.4      | Terraform file organizer                |
+| kubectl     | 1.32.6     | Kubernetes cluster management           |
+| Helm        | 3.17.1     | Kubernetes package manager              |
+| azcopy      | 10.31.1    | Azure Blob transfer tool                |
+| GitHub CLI  | latest     | GitHub from the command line            |
+| Bun         | latest     | JavaScript runtime and package manager  |
+| PowerShell  | latest     | Cross-platform automation and scripting |
+| Claude Code | latest     | AI-powered coding assistant             |
+| Node.js     | OS package | JavaScript runtime                      |
 
 Azure CLI extensions: `azure-devops`, `ssh`, `bastion`
 
@@ -50,6 +52,9 @@ AZURE_DEVOPS_ORG_URL=<https://dev.azure.com/your-org>
 
 # Optional — only if you use GitHub
 GH_TOKEN=<your-github-personal-access-token>
+
+# Optional — only if you use Claude Code
+ANTHROPIC_API_KEY=<your-anthropic-api-key>
 ```
 
 Then pull the image and start a container:
@@ -104,6 +109,7 @@ docker exec -it azure-iac-dev bash
 | `AZURE_DEVOPS_EXT_PAT` | Azure DevOps personal access token                                 |
 | `AZURE_DEVOPS_ORG_URL` | Azure DevOps organisation URL (e.g. `https://dev.azure.com/myorg`) |
 | `GH_TOKEN`             | GitHub personal access token for `gh` CLI                          |
+| `ANTHROPIC_API_KEY`    | Anthropic API key for Claude Code                                  |
 
 ### Set automatically inside the container
 
@@ -184,6 +190,16 @@ Get-AzVM
 Set-VSTeamAccount -Account $env:AZURE_DEVOPS_ORG_URL -PersonalAccessToken $env:AZURE_DEVOPS_EXT_PAT
 Get-VSTeamProject
 Get-VSTeamBuildDefinition -ProjectName <project-name>
+```
+
+### Claude Code
+
+```bash
+# ANTHROPIC_API_KEY is picked up automatically from the environment
+claude
+
+# Non-interactive usage
+claude -p "explain this terraform module"
 ```
 
 ### GitHub CLI

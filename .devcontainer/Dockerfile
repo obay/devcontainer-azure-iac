@@ -98,6 +98,9 @@ RUN pwsh -NoProfile -Command " \
     Install-Module -Name Az -Scope AllUsers -Repository PSGallery; \
     Install-Module -Name VSTeam -Scope AllUsers -Repository PSGallery"
 
+# Install Claude Code (AI-powered coding assistant)
+RUN npm install -g @anthropic-ai/claude-code
+
 # Install Azure CLI extensions (baked into image for reproducibility)
 RUN az extension add --name azure-devops \
     && az extension add --name ssh \
