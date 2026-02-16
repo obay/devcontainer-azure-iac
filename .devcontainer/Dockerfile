@@ -92,6 +92,12 @@ RUN curl -fsSL https://packages.microsoft.com/config/ubuntu/24.04/packages-micro
     && apt-get update && apt-get install -y --no-install-recommends powershell \
     && rm -rf /var/lib/apt/lists/*
 
+# Install PowerShell modules for Azure and Azure DevOps management
+RUN pwsh -NoProfile -Command " \
+    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted; \
+    Install-Module -Name Az -Scope AllUsers -Repository PSGallery; \
+    Install-Module -Name VSTeam -Scope AllUsers -Repository PSGallery"
+
 # Install Azure CLI extensions (baked into image for reproducibility)
 RUN az extension add --name azure-devops \
     && az extension add --name ssh \
