@@ -29,7 +29,6 @@ A pre-built development container for Azure Infrastructure as Code projects. Inc
 | Bun         | latest     | JavaScript runtime and package manager  |
 | PowerShell  | latest     | Cross-platform automation and scripting |
 | Claude Code | latest     | AI-powered coding assistant             |
-| Node.js     | OS package | JavaScript runtime                      |
 
 Azure CLI extensions: `azure-devops`, `ssh`, `bastion`
 

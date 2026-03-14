@@ -22,8 +22,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     rsync \
     dnsutils \
     gawk \
-    nodejs \
-    npm \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js 22 LTS (required as runtime for Claude Code and devcontainer CLI)
+ARG NODE_MAJOR=22
+RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Azure CLI via Microsoft apt repository
@@ -35,9 +39,9 @@ RUN curl -sLS https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor 
     && rm -rf /var/lib/apt/lists/*
 
 # Install Bun (fast package manager and JavaScript runtime)
-RUN curl -fsSL https://bun.sh/install | bash \
-    && ln -s /root/.bun/bin/bun /usr/local/bin/bun \
-    && ln -s /root/.bun/bin/bunx /usr/local/bin/bunx
+ENV BUN_INSTALL=/root/.bun
+ENV PATH=$BUN_INSTALL/bin:$PATH
+RUN curl -fsSL https://bun.sh/install | bash
 
 # Install OpenTofu
 ARG OPENTOFU_VERSION=1.10.6
@@ -99,7 +103,7 @@ RUN pwsh -NoProfile -Command " \
     Install-Module -Name VSTeam -Scope AllUsers -Repository PSGallery"
 
 # Install Claude Code (AI-powered coding assistant)
-RUN npm install -g @anthropic-ai/claude-code
+RUN bun install -g @anthropic-ai/claude-code
 
 # Install Azure CLI extensions (baked into image for reproducibility)
 RUN az extension add --name azure-devops \
