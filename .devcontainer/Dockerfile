@@ -3,6 +3,9 @@
 
 FROM ubuntu:24.04
 
+# Provided automatically by buildx for multi-arch builds (e.g. amd64, arm64)
+ARG TARGETARCH
+
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install system packages
@@ -33,7 +36,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - \
 # Install Azure CLI via Microsoft apt repository
 RUN curl -sLS https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg \
     && chmod 644 /etc/apt/keyrings/microsoft.gpg \
-    && echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" \
     > /etc/apt/sources.list.d/azure-cli.list \
     && apt-get update && apt-get install -y --no-install-recommends azure-cli \
     && rm -rf /var/lib/apt/lists/*
@@ -52,31 +55,36 @@ RUN curl -fsSL https://get.opentofu.org/install-opentofu.sh -o install-opentofu.
 
 # Install Terraform
 ARG TERRAFORM_VERSION=1.13.5
-RUN curl -fsSL "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" -o terraform.zip \
+RUN curl -fsSL "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" -o terraform.zip \
     && unzip -o terraform.zip -d /usr/local/bin \
     && rm terraform.zip \
     && chmod +x /usr/local/bin/terraform
 
 # Install tfren (Terraform file organizer) - https://github.com/obay/tfren
 ARG TFREN_VERSION=1.0.4
-RUN curl -fsSL "https://github.com/obay/tfren/releases/download/v${TFREN_VERSION}/tfren_Linux_x86_64.tar.gz" \
-    | tar -xz -C /usr/local/bin tfren \
+RUN case "${TARGETARCH}" in \
+        amd64) tfren_arch=x86_64 ;; \
+        arm64) tfren_arch=arm64 ;; \
+        *) echo "Unsupported architecture: ${TARGETARCH}" >&2; exit 1 ;; \
+    esac \
+    && curl -fsSL "https://github.com/obay/tfren/releases/download/v${TFREN_VERSION}/tfren_Linux_${tfren_arch}.tar.gz" \
+        | tar -xz -C /usr/local/bin tfren \
     && chmod +x /usr/local/bin/tfren
 
 # Install kubectl
 ARG KUBECTL_VERSION=1.32.6
-RUN curl -fsSL "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl" -o /usr/local/bin/kubectl \
+RUN curl -fsSL "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/${TARGETARCH}/kubectl" -o /usr/local/bin/kubectl \
     && chmod +x /usr/local/bin/kubectl
 
 # Install Helm
 ARG HELM_VERSION=3.17.1
-RUN curl -fsSL "https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz" \
-    | tar -xz --strip-components=1 -C /usr/local/bin linux-amd64/helm \
+RUN curl -fsSL "https://get.helm.sh/helm-v${HELM_VERSION}-linux-${TARGETARCH}.tar.gz" \
+    | tar -xz --strip-components=1 -C /usr/local/bin "linux-${TARGETARCH}/helm" \
     && chmod +x /usr/local/bin/helm
 
 # Install azcopy (Azure Blob transfer tool)
 ARG AZCOPY_VERSION=10.31.1
-RUN curl -fsSL "https://github.com/Azure/azure-storage-azcopy/releases/download/v${AZCOPY_VERSION}/azcopy_linux_amd64_${AZCOPY_VERSION}.tar.gz" \
+RUN curl -fsSL "https://github.com/Azure/azure-storage-azcopy/releases/download/v${AZCOPY_VERSION}/azcopy_linux_${TARGETARCH}_${AZCOPY_VERSION}.tar.gz" \
     | tar -xz --strip-components=1 -C /usr/local/bin --wildcards '*/azcopy' \
     && chmod +x /usr/local/bin/azcopy
 
