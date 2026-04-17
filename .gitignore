@@ -1,6 +1,9 @@
 # Dev container credentials (never commit)
 .devcontainer/.env
 
+# Local Claude Code state (per-user permissions, scheduled task locks)
+.claude/
+
 # Local .terraform directories
 .terraform/
 
