@@ -97,14 +97,23 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
     && apt-get update && apt-get install -y --no-install-recommends gh \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PowerShell
-# packages-microsoft-prod.deb hardcodes arch=amd64 in its sources entry, which
-# breaks arm64 builds, so we add the prod feed manually with the actual arch.
-# The Microsoft GPG key was already installed by the Azure CLI step above.
-RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/24.04/prod $(lsb_release -cs) main" \
-    > /etc/apt/sources.list.d/microsoft-prod.list \
-    && apt-get update && apt-get install -y --no-install-recommends powershell \
-    && rm -rf /var/lib/apt/lists/*
+# Install PowerShell from upstream tarball.
+# The Microsoft apt feed only ships powershell for amd64, so we use the
+# upstream release which has builds for both amd64 and arm64.
+ARG POWERSHELL_VERSION=7.6.0
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libicu74 libssl3 less \
+    && rm -rf /var/lib/apt/lists/* \
+    && case "${TARGETARCH}" in \
+        amd64) ps_arch=x64 ;; \
+        arm64) ps_arch=arm64 ;; \
+        *) echo "Unsupported architecture: ${TARGETARCH}" >&2; exit 1 ;; \
+    esac \
+    && mkdir -p /opt/microsoft/powershell/7 \
+    && curl -fsSL "https://github.com/PowerShell/PowerShell/releases/download/v${POWERSHELL_VERSION}/powershell-${POWERSHELL_VERSION}-linux-${ps_arch}.tar.gz" \
+        | tar -xz -C /opt/microsoft/powershell/7 \
+    && chmod +x /opt/microsoft/powershell/7/pwsh \
+    && ln -s /opt/microsoft/powershell/7/pwsh /usr/bin/pwsh
 
 # Install PowerShell modules for Azure and Azure DevOps management
 RUN pwsh -NoProfile -Command " \
