@@ -98,9 +98,11 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PowerShell
-RUN curl -fsSL https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb -o packages-microsoft-prod.deb \
-    && dpkg -i packages-microsoft-prod.deb \
-    && rm packages-microsoft-prod.deb \
+# packages-microsoft-prod.deb hardcodes arch=amd64 in its sources entry, which
+# breaks arm64 builds, so we add the prod feed manually with the actual arch.
+# The Microsoft GPG key was already installed by the Azure CLI step above.
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/24.04/prod $(lsb_release -cs) main" \
+    > /etc/apt/sources.list.d/microsoft-prod.list \
     && apt-get update && apt-get install -y --no-install-recommends powershell \
     && rm -rf /var/lib/apt/lists/*
 
